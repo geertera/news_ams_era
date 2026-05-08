@@ -53,6 +53,17 @@
       padding: 72px; display: grid; grid-template-columns: 0.9fr 1.25fr; gap: 72px; align-items: center;
     }
 
+    .hero { padding-top: 48px; }
+
+    .eyebrow {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.24em;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 24px;
+    }
+
     .title {
       margin: 0; font-size: 112px; line-height: 0.9;
       letter-spacing: -0.08em; font-weight: 800; text-transform: uppercase;
@@ -64,14 +75,47 @@
     }
 
     .news-card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 36px; padding: 48px;
+      justify-self: end;
+      width: 100%;
+      min-height: 620px;
+      padding: 48px;
+      border: 1px solid var(--border);
+      border-radius: 36px;
+      background: var(--card);
+      box-shadow: 0 28px 70px rgba(0, 0, 0, 0.45);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .news-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 7px;
+      border-radius: 36px 36px 0 0;
+      background: linear-gradient(90deg, var(--era-pink), var(--era-orange), var(--era-purple));
+    }
+
+    .card-label {
+      color: var(--muted);
+      font-size: 19px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 34px;
     }
 
     .item { margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 16px; }
     .headline { font-size: 28px; font-weight: 800; margin: 0 0 6px; }
     .summary { font-size: 18px; color: var(--muted); }
     .status { font-size: 22px; color: var(--muted); }
+
+    @media (max-width: 900px) {
+      .page { grid-template-columns: 1fr; padding: 36px; }
+      .title { font-size: 72px; }
+    }
   </style>
 </head>
 <body>
@@ -84,12 +128,14 @@
 </div>
 
 <main class="page">
-  <div>
-    <h1 class="title">News</h1>
+  <div class="hero">
+    <div class="eyebrow">MediaPost</div>
+    <h1 class="title">Media Daily News</h1>
     <div class="accent-line"></div>
   </div>
 
   <div class="news-card">
+    <div class="card-label">Latest highlights</div>
     <div id="news">
       <div class="status">Loading headlines...</div>
     </div>
