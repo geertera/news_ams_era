@@ -211,7 +211,7 @@
   <main class="page">
     <section class="hero" aria-label="News source">
       <div class="eyebrow">MediaPost</div>
-      <h1 class="title">Media Daily News</h1>
+      <h1 class="title">Daily<br>Media<br>News</h1>
       <div class="accent-line"></div>
     </section>
 
@@ -225,7 +225,7 @@
 
   <script>
     var RSS_FEED = 'http://feeds.mediapost.com/mediadailynews';
-    var RSS_URL = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(RSS_FEED);
+    var RSS_URL = 'https://api.allorigins.win/raw?url=http://feeds.mediapost.com/mediadailynews' + encodeURIComponent(RSS_FEED);
 
     function stripHtml(html) {
       var temp = document.createElement('div');
