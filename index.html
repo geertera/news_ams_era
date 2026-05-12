@@ -223,77 +223,92 @@
     </section>
   </main>
 
-  <script>
-    var RSS_FEED = 'http://feeds.mediapost.com/mediadailynews';
-    var RSS_URL = 'https://api.allorigins.win/raw?url=feeds.mediapost.com/mediadailynews' + encodeURIComponent(RSS_FEED);
+<script>
+  var RSS_FEED = 'http://feeds.mediapost.com/mediadailynews';
+  var RSS_URL = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(RSS_FEED);
 
-    function stripHtml(html) {
-      var temp = document.createElement('div');
-      temp.innerHTML = html || '';
-      return (temp.textContent || temp.innerText || '').replace(/\s+/g, ' ').trim();
+  function stripHtml(html) {
+    var temp = document.createElement('div');
+    temp.innerHTML = html || '';
+    return (temp.textContent || temp.innerText || '').replace(/\s+/g, ' ').trim();
+  }
+
+  function escapeHtml(text) {
+    return String(text || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  function shortText(text, maxLength) {
+    if (!text) return '';
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength).replace(/\s+\S*$/, '') + '...';
+  }
+
+  function renderItems(items) {
+    var container = document.getElementById('news');
+    var html = '';
+    var limit = Math.min(items.length, 5);
+
+    for (var i = 0; i < limit; i++) {
+      var item = items[i];
+
+      var titleNode = item.getElementsByTagName('title')[0];
+      var descNode = item.getElementsByTagName('description')[0];
+
+      var title = stripHtml(titleNode ? titleNode.textContent : '');
+      var description = stripHtml(descNode ? descNode.textContent : '');
+
+      html += '<article class="item">' +
+        '<div class="number">' + (i + 1) + '</div>' +
+        '<div>' +
+          '<h2 class="headline">' + escapeHtml(title) + '</h2>' +
+          '<p class="summary">' + escapeHtml(shortText(description, 145)) + '</p>' +
+        '</div>' +
+      '</article>';
     }
 
-    function escapeHtml(text) {
-      return String(text || '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-    }
+    container.innerHTML = html || '<div class="status">No MediaPost headlines found.</div>';
+  }
 
-    function shortText(text, maxLength) {
-      if (!text) return '';
-      if (text.length <= maxLength) return text;
-      return text.substring(0, maxLength).replace(/\s+\S*$/, '') + '...';
-    }
+  function loadNews() {
+    var xhr = new XMLHttpRequest();
+    var url = RSS_URL + '&cache=' + new Date().getTime();
 
-    function renderItems(items) {
-      var container = document.getElementById('news');
-      var html = '';
-      var limit = Math.min(items.length, 5);
+    xhr.open('GET', url, true);
 
-      for (var i = 0; i < limit; i++) {
-        var item = items[i];
-        var title = stripHtml(item.getElementsByTagName('title')[0] && item.getElementsByTagName('title')[0].textContent);
-        var description = stripHtml(item.getElementsByTagName('description')[0] && item.getElementsByTagName('description')[0].textContent);
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4) {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          var parser = new DOMParser();
+          var xml = parser.parseFromString(xhr.responseText, 'text/xml');
+          var items = xml.getElementsByTagName('item');
 
-        html += '<article class="item">' +
-          '<div class="number">' + (i + 1) + '</div>' +
-          '<div>' +
-            '<h2 class="headline">' + escapeHtml(title) + '</h2>' +
-            '<p class="summary">' + escapeHtml(shortText(description, 145)) + '</p>' +
-          '</div>' +
-        '</article>';
-      }
-
-      container.innerHTML = html || '<div class="status">No headlines found.</div>';
-    }
-
-    function loadNews() {
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', RSS_URL, true);
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4) {
-          if (xhr.status >= 200 && xhr.status < 300) {
-            var parser = new DOMParser();
-            var xml = parser.parseFromString(xhr.responseText, 'text/xml');
-            var items = xml.getElementsByTagName('item');
-            renderItems(items);
-          } else {
-            document.getElementById('news').innerHTML = '<div class="status">News is temporarily unavailable.</div>';
-          }
+          renderItems(items);
+        } else {
+          document.getElementById('news').innerHTML =
+            '<div class="status">MediaPost news is temporarily unavailable.</div>';
         }
-      };
-      xhr.send();
-    }
+      }
+    };
 
-    loadNews();
-    setInterval(loadNews, 900000);
+    xhr.onerror = function () {
+      document.getElementById('news').innerHTML =
+        '<div class="status">MediaPost news is temporarily unavailable.</div>';
+    };
 
-    setTimeout(function () {
-      window.location.reload();
-    }, 86400000);
-  </script>
+    xhr.send();
+  }
+
+  loadNews();
+  setInterval(loadNews, 900000);
+
+  setTimeout(function () {
+    window.location.reload();
+  }, 86400000);
+</script>
 </body>
 </html>
